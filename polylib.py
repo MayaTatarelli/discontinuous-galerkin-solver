@@ -1,11 +1,10 @@
 import numpy as np
 from scipy.special import jacobi
-from dg_variables import poly_degree
 #*****************************************************
 #           POLYNOMIAL LIBRARY SUBROUTINES
 #*****************************************************
 #=====================================================
-def basis(p, xi, P=poly_degree):
+def basis(p, xi, P):
   # Legendre basis functions
   # ref: https://backend.orbit.dtu.dk/ws/portalfiles/portal/143813931/filestore_40_.pdf
   # -- equation 4, page 4
