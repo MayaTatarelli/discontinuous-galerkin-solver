@@ -1,4 +1,5 @@
 #Test DGSolver class
+import numpy as np
 import DGSolver
 import sys
 sys.path.append('../quickplotlib/lib/')
@@ -50,11 +51,13 @@ plot_matrix_sparsity_pattern(A=stiff_matrix_3_2, colour_toggle='n',cutOff=1e-4, 
 #=========================================================================#
 
 #Testing converting between physical and frequency space
-num_dg_solvers = 5
-#dg_solvers_varying_polydegree = np.empty(num_dg_solvers)
+num_dg_solvers = 100
+number_elements_array = np.logspace(0,400,num_dg_solvers)
 dg_solvers_varying_numelements = np.empty(num_dg_solvers)
-'''
-for i in range*(num_dg_solvers):
-	dg_solvers_varying_polydegree[i] = DGSolver.DGSolver(=(i+1)*5)
 
-'''
+for i in range(0,num_dg_solvers):
+	dg_solvers_varying_numelements[i] = DGSolver.DGSolver(number_of_elements=number_elements_array[i])
+	dg_solvers_varying_numelements[i].test_phys_freq_space_conversion()
+
+
+
