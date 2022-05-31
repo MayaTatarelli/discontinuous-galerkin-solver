@@ -1,21 +1,24 @@
 import numpy as np
-from polylib import gLLNodesAndWeights, basis
+from polylib import gLLNodesAndWeights, gLLDifferentiationMatrix, basis
 from dg_variables import *
 #==========================================================================#
 #           INIT VARS -- MOVE LATER
 #==========================================================================#
 def initialize_additional_dg_vars():
     global poly_degree, number_of_quad_points, number_of_elements,\
-       domain_left,domainR, nodes, quadrature_weights,\
-       basis_functions_store, test_functions_store, element_vertices,\
+       domain_left, domain_right, nodes, quadrature_weights, differentiation_matrix, basis_functions_store,\
+       test_functions_store, derivative_test_functions_store, element_vertices,\
        elementwise_left_vertices, elementwise_right_vertices, elementwise_jacobian, elementwise_x
     
     nodes, quadrature_weights = gLLNodesAndWeights(number_of_quad_points)
+
+    differentiation_matrix = gLLDifferentiationMatrix(number_of_quad_points)
 
     for p in range(0,poly_degree+1):
         basis_p_at_all_nodes = basis(p, nodes, poly_degree)
         basis_functions_store.append(basis_p_at_all_nodes)
         test_functions_store.append(basis_p_at_all_nodes) # choose tests functions same as basis functions
+        derivative_test_functions_store.append(differentiation(test_functions_store[p]))
 
     element_vertices = get_element_vertices_uniformly_spaced(domain_left, domain_right, number_of_elements)
     elementwise_left_vertices = element_vertices[:-1]
@@ -48,6 +51,14 @@ def inner_product_for_given_element(element_index, func1, func2):
         integral += quadrature_weights[i]*func1[i]*func2[i] #using quad_points(standard space)
     integral *= elementwise_jacobian[element_index]
     return integral
+
+def differentiation(func):
+    derivative = np.empty(number_of_quad_points)
+    for i in range (0, number_of_quad_points):
+        derivative[i] = 0.0
+        for j in range(0,number_of_quad_points):
+            derivative[i] += differentiation_matrix[i][j]*func[j]
+    return derivative
 #===================================================================================#
 #Mapping function from standard element domain to physical domain
 def mapping_function(quad_point, xL, xR): #change later to element, and then get xL and xR from element number
@@ -68,3 +79,24 @@ def build_element_mass_matrix(element_index,P):
             mass_matrix[p][q] = inner_product_for_given_element(element_index,basis_functions_store[p],test_functions_store[q])
 
     return mass_matrix
+#===================================================================================#
+#Stiffness matrix
+def build_element_stiffness_matrix(element_index,P):
+    global basis_functions_store, derivative_test_functions_store
+
+    stiffness_matrix = np.zeros((P+1,P+1),dtype=np.float64)
+    for p in range(0,P+1):
+        for q in range(0,P+1):
+            dphi_dx = derivative_test_functions_store[q]/elementwise_jacobian[element_index]
+            stiffness_matrix[p][q] = inner_product_for_given_element(element_index,basis_functions_store[p],dphi_dx)
+
+    return stiffness_matrix
+#===================================================================================#
+
+
+
+
+
+
+
+

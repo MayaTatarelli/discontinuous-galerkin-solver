@@ -5,6 +5,24 @@ from scipy.special import jacobi
 #*****************************************************
 #=====================================================
 def basis(p, xi, P):
+  # Lagrange basis functions
+  xi_p = 1.0*xi[p]
+  value_store = np.zeros(P+1)
+  for i in range(0,P+1):
+    # if (xi[i] == xi_p):
+    #   value[i] = 1.0
+    # else:
+    #   value[i] = (xi[i]-1.0)*(xi[i]+1.0)*jacobi(P-1, 1, 1, monic=False)(xi[i])/((P+1)*P*lgP(P, xi_p)*(xi_p-xi[i]))
+    #   value[i] = (xi[i]-1.0)*(xi[i]+1.0)*dLgP(P, xi[i])/((P+1)*P*lgP(P, xi_p)*(xi_p-xi[i]))
+    value = 1.0
+    for j in range(0,P+1):
+      if j != p:
+        value *= (xi[i]-xi[j])/(xi_p-xi[j])
+    value_store[i] = value
+
+  return value_store
+#=====================================================
+'''def basis(p, xi, P):
   # Legendre basis functions
   # ref: https://backend.orbit.dtu.dk/ws/portalfiles/portal/143813931/filestore_40_.pdf
   # -- equation 4, page 4
@@ -15,7 +33,7 @@ def basis(p, xi, P):
   else:
     value = 0.25*(1.0+xi)*(1.0-xi)*jacobi(p-1, 1, 1, monic=False)(xi) # may need to set this as true, you'll see
     # ref: https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.jacobi.html
-  return value
+  return value'''
 #=====================================================
 def lgP (n, xi):
   # Reference for : https://colab.research.google.com/github/caiociardelli/sphglltools/blob/main/doc/L3_Gauss_Lobatto_Legendre_quadrature.ipynb#scrollTo=uesH7LNBkhaP
@@ -115,4 +133,31 @@ def gLLNodesAndWeights (n, epsilon = 1e-15):
       w[n_2] = 2.0 / ((n * (n - 1)) * lgP (n - 1, np.array (x[n_2])) ** 2)
       
   return x, w
-  #=====================================================
+#=====================================================
+def gLLDifferentiationMatrix (n, epsilon = 1e-15):
+  # Reference for : https://colab.research.google.com/github/caiociardelli/sphglltools/blob/main/doc/L3_Gauss_Lobatto_Legendre_quadrature.ipynb#scrollTo=uesH7LNBkhaP
+  """
+  Computes the GLL nodes and weights
+  """
+  if n < 2:
+    
+    print ('Error: n must be larger than 1')
+  
+  else:
+    n_p = n-1
+    xi = gLLNodesAndWeights(n_p+1, epsilon)[0]
+    d = np.empty((n_p+1,n_p+1))
+    
+    for i in range (0, n_p+1):
+      for j in range (0, n_p+1):
+        if(i==0 and j==0):
+          d[i][j] = -n_p*(n_p+1)/4.0
+        elif(i==n_p and j==n_p):
+          d[i][j] = n_p*(n_p+1)/4.0
+        elif(i==j and i>=1 and i<=(n_p-1)):
+          d[i][j] = 0.0
+        else:
+          d[i][j] = 1.0/(xi[i]-xi[j])*(lgP(n_p, xi[i])/lgP(n_p, xi[j])) 
+      
+  return d
+#=====================================================
