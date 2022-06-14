@@ -49,15 +49,26 @@ stiff_matrix_3_2 = dg_solver_2.build_element_stiffness_matrix(3)
 plot_matrix_sparsity_pattern(A=stiff_matrix_3_2, colour_toggle='n',cutOff=1e-4, figure_filename='test_2_DGSolver_class_stiff_matrix_3')
 '''
 #=========================================================================#
-
+'''
 #Testing converting between physical and frequency space
-num_dg_solvers = 100
-number_elements_array = np.logspace(0,400,num_dg_solvers)
-dg_solvers_varying_numelements = np.empty(num_dg_solvers)
 
-for i in range(0,num_dg_solvers):
-	dg_solvers_varying_numelements[i] = DGSolver.DGSolver(number_of_elements=number_elements_array[i])
-	dg_solvers_varying_numelements[i].test_phys_freq_space_conversion()
+def test_func(x):
+	return np.sin(x)*np.cos(x)
 
+dg_solver = DGSolver.DGSolver()
+error = dg_solver.test_phys_freq_space_conversion(test_func)
+print(error)
+'''
+#=========================================================================#
+#Testing time advancement function
 
-
+dg_solver = DGSolver.DGSolver(domain_left=0.0,
+							  domain_right=(2.0*np.pi),
+							  poly_degree=2,
+							  number_of_elements=15,
+							  cfl=0.005,
+							  a=(2.0*np.pi))
+#dg_solver.set_initial_condition()
+#dg_solver.output_elementwise_x_file()
+L2_error = dg_solver.advance_solution_time()
+print(L2_error)
