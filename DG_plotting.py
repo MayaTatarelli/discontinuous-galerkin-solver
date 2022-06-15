@@ -89,6 +89,8 @@ print(x_values)
 error_values = np.loadtxt("error_values_lower_num_elmnts_2.csv", delimiter=",")
 #When using error_values below, number_of_runs must be 8 (up to 75 elements only)
 #error_values = np.array ([0.07675223434418506, 0.003379224280853759, 0.001316652195210326, 0.0008751557041560119, 0.0008060444479951529, 0.0006575629672622212, 0.000555763935542056, 0.00048141199163347006])
+#When using error_values below, number_of_runs must be 7 (up to 65 elements only)
+#error_values = np.array([0.07608823731950479, 0.002736467949655204, 0.0008118104597542999, 0.0005480414992704756, 0.0004101779414422665, 0.00033137237893027856, 0.0002310014267979762])
 print(error_values)
 poly_degree = 2
 

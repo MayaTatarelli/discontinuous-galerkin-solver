@@ -23,13 +23,13 @@ for iElements in range(len(num_elements_values)):
 								  domain_right=(2.0*np.pi),
 								  poly_degree=2,
 								  number_of_elements=num_elements_values[iElements],
-								  cfl=0.003,
+								  cfl=0.0015,
 								  a=(2.0*np.pi))
 	error_values[iElements] = dg_solver.advance_solution_time()
 	print("Error: " + str(error_values[iElements]))
 
 print(error_values)
-np.savetxt("error_values_P2_cfl003.csv", error_values, delimiter=',') #, fmt='%d')
+np.savetxt("error_values_P2_cfl0015.csv", error_values, delimiter=',') #, fmt='%d')
 
 plt.figure()
 plt.plot(num_elements_values, error_values)
