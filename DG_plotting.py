@@ -3,6 +3,7 @@ import DGSolver
 import sys
 sys.path.append('../quickplotlib/lib/')
 from quickplotlib import plotfxn, plot_matrix_sparsity_pattern
+import matplotlib . pyplot as plt
 
 #NEED TO SPLIT INTO TWO DIFFERENT FILES, ONE FOR TIME ADVANCEMENT AND ONE FOR CONVERGENCE
 
@@ -57,13 +58,8 @@ for i in range(0,n_time_steps+1):
 	    title_label=current_time_string,
 	    legend_labels_tex=["solution","solution"])
 '''
-'''
+
 #CONVERGENCE
-x_values = (2.0*np.pi)/num_elements_values
-print(x_values)
-error_values = np.loadtxt("error_values_lower_num_elmnts_2.csv", delimiter=",")
-print(error_values)
-poly_degree = 2
 
 def get_ref_curve(error_vals,x_data,n):
     # n is order
@@ -81,6 +77,21 @@ def get_ref_curve(error_vals,x_data,n):
     dx_n = (x_data**n)*10.0**(shift+float(n))
     return dx_n
 
+number_of_runs = 10
+num_elements_values = [5]
+
+for i in range(1,number_of_runs):
+	num_elements_values.append(num_elements_values[i-1]+10)
+num_elements_values = np.array(num_elements_values)
+
+x_values = (2.0*np.pi)/num_elements_values
+print(x_values)
+error_values = np.loadtxt("error_values_lower_num_elmnts_2.csv", delimiter=",")
+#When using error_values below, number_of_runs must be 8 (up to 75 elements only)
+#error_values = np.array ([0.07675223434418506, 0.003379224280853759, 0.001316652195210326, 0.0008751557041560119, 0.0008060444479951529, 0.0006575629672622212, 0.000555763935542056, 0.00048141199163347006])
+print(error_values)
+poly_degree = 2
+
 plt.figure()
 i = poly_degree+1
 dx_n = get_ref_curve(error_values, x_values, -i)
@@ -91,7 +102,7 @@ plt.loglog(1.0/x_values, error_values)#,label=name_scheme, linestyle=linestyles[
 
 plt.legend()
 plt.show()
-'''
+
 
 '''
 num_to_remove = 10
