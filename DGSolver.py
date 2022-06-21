@@ -11,7 +11,7 @@ class DGSolver:
 	#constructor
 	def __init__(self, poly_degree=10, number_of_extra_quad_points=0, 
 				 number_of_elements=5, domain_left=0.0, domain_right=5.0, a=0.5, cfl=0.5,
-				 rk4=False):
+				 rk4=False, gauss_legendre=False):
 		
 		#set attributes with input parameters
 		self.poly_degree = poly_degree
@@ -22,11 +22,16 @@ class DGSolver:
 		self.a = a #This attribute will be moved to physics class along with flux methods
 		self.cfl = cfl
 		self.rk4 = rk4
+		self.gauss_legendre = gauss_legendre
 		self.left_dirichlet_boundary_condition_physical = 0.0
 		self.right_dirichlet_boundary_condition_physical = 0.0
 
 		if(self.rk4):
 			print("Using RK4")
+		if(self.gauss_legendre):
+			print("Using Gauss-Legendre")
+		else:
+			ptint("Using Gauss-Lobatto-Legendre")
 
 		#initialize other attributes
 		self.nodes = np.empty(self.number_of_quad_points)
