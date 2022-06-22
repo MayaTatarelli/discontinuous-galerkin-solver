@@ -86,7 +86,7 @@ num_elements_values = np.array(num_elements_values)
 
 x_values = (2.0*np.pi)/num_elements_values
 print(x_values)
-error_values = np.loadtxt("error_values_P2_cfl0015_rk4.csv", delimiter=",")
+error_values = np.loadtxt("error_values_P1_cfl0075_rk4.csv", delimiter=",")
 #When using error_values below, number_of_runs must be 8 (up to 75 elements only)
 #error_values = np.array ([0.07675223434418506, 0.003379224280853759, 0.001316652195210326, 0.0008751557041560119, 0.0008060444479951529, 0.0006575629672622212, 0.000555763935542056, 0.00048141199163347006])
 #When using error_values below, number_of_runs must be 7 (up to 65 elements only)
