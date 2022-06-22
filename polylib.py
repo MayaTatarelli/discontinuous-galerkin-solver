@@ -161,3 +161,32 @@ def gLLDifferentiationMatrix (n, epsilon = 1e-15):
       
   return d
 #=====================================================
+def gLNodesAndWeights(n):
+  if(n == 3):
+    val1 = np.sqrt(3.0/5.0)
+    x = np.array([-val1, 0.0, val1])
+
+    weight1 = 5.0/9.0
+    w = np.array([weight1, 8.0/9.0, weight1])
+
+  elif(n == 4):
+    val1 = np.sqrt(3.0/7.0 + np.sqrt(6.0/5.0)*2.0/7.0)
+    val2 = np.sqrt(3.0/7.0 - np.sqrt(6.0/5.0)*2.0/7.0)
+    x = np.array([-val1, -val2, val2, val1])
+
+    weight1 = (18.0 - np.sqrt(30.0)) / 36.0
+    weight2 = (18.0 + np.sqrt(30.0)) / 36.0
+    w = np.array([weight1, weight2, weight2, weight1])
+
+  elif(n == 5):
+    val1 = (1.0/3.0)*np.sqrt(5.0 + 2.0*np.sqrt(10.0/7.0))
+    val2 = (1.0/3.0)*np.sqrt(5.0 - 2.0*np.sqrt(10.0/7.0))
+    x = np.array([-val1, -val2, 0.0, val2, val1])
+
+    weight1 = (322.0 - 13.0*np.sqrt(70.0)) / 900.0
+    weight2 = (322.0 + 13.0*np.sqrt(70.0)) / 900.0
+    w = np.array([weight1, weight2, 128.0/225.0, weight2, weight1])
+  else:
+    print("You are using too high a polynomial degree for Gauss-Legendre quadrature.")
+    exit()
+  return x, w

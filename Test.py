@@ -4,6 +4,7 @@ import DGSolver
 import sys
 sys.path.append('../quickplotlib/lib/')
 from quickplotlib import plotfxn, plot_matrix_sparsity_pattern
+from polylib import *
 
 #=========================================================================#
 #New instance of DGSolver with default values
@@ -62,13 +63,23 @@ print(error)
 #=========================================================================#
 #Testing time advancement function
 
-dg_solver = DGSolver.DGSolver(domain_left=0.0,
-							  domain_right=(2.0*np.pi),
-							  poly_degree=2,
-							  number_of_elements=15,
-							  cfl=0.005,
-							  a=(2.0*np.pi))
-#dg_solver.set_initial_condition()
-#dg_solver.output_elementwise_x_file()
-L2_error = dg_solver.advance_solution_time()
-print(L2_error)
+# dg_solver = DGSolver.DGSolver(domain_left=0.0,
+# 							  domain_right=(2.0*np.pi),
+# 							  poly_degree=2,
+# 							  number_of_elements=15,
+# 							  cfl=0.005,
+# 							  a=(2.0*np.pi))
+# #dg_solver.set_initial_condition()
+# #dg_solver.output_elementwise_x_file()
+# L2_error = dg_solver.advance_solution_time()
+# print(L2_error)
+#=========================================================================#
+#Testing gLNodesAndWeights from polylib
+
+n_3_x, n_3_w = gLNodesAndWeights(3)
+n_4_x, n_4_w = gLNodesAndWeights(4)
+n_5_x, n_5_w = gLNodesAndWeights(5)
+n_6_x, n_6_w = gLNodesAndWeights(2)
+
+print(n_5_x)
+print(n_5_w)

@@ -31,7 +31,7 @@ class DGSolver:
 		if(self.gauss_legendre):
 			print("Using Gauss-Legendre")
 		else:
-			ptint("Using Gauss-Lobatto-Legendre")
+			print("Using Gauss-Lobatto-Legendre")
 
 		#initialize other attributes
 		self.nodes = np.empty(self.number_of_quad_points)
@@ -56,7 +56,7 @@ class DGSolver:
 		#set other attributes   
 		self.nodes, self.quadrature_weights = gLLNodesAndWeights(self.number_of_quad_points)
 		self.differentiation_matrix = gLLDifferentiationMatrix(self.number_of_quad_points)
-
+		
 		for p in range(0,self.poly_degree+1):
 			basis_p_at_all_nodes = basis(p, self.nodes, self.poly_degree)
 			self.basis_functions_store.append(basis_p_at_all_nodes)
