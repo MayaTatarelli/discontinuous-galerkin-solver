@@ -10,7 +10,8 @@ class DGSolver:
 
 	#constructor
 	def __init__(self, poly_degree=10, number_of_extra_quad_points=0, 
-				 number_of_elements=5, domain_left=0.0, domain_right=5.0, a=0.5, cfl=0.5):
+				 number_of_elements=5, domain_left=0.0, domain_right=5.0, a=0.5, cfl=0.5,
+				 rk4=False, gauss_legendre=False):
 		
 		#set attributes with input parameters
 		self.poly_degree = poly_degree
@@ -20,8 +21,17 @@ class DGSolver:
 		self.domain_right = domain_right
 		self.a = a #This attribute will be moved to physics class along with flux methods
 		self.cfl = cfl
+		self.rk4 = rk4
+		self.gauss_legendre = gauss_legendre
 		self.left_dirichlet_boundary_condition_physical = 0.0
 		self.right_dirichlet_boundary_condition_physical = 0.0
+
+		if(self.rk4):
+			print("Using RK4")
+		if(self.gauss_legendre):
+			print("Using Gauss-Legendre")
+		else:
+			ptint("Using Gauss-Lobatto-Legendre")
 
 		#initialize other attributes
 		self.nodes = np.empty(self.number_of_quad_points)
@@ -52,8 +62,9 @@ class DGSolver:
 			self.basis_functions_store.append(basis_p_at_all_nodes)
 			self.test_functions_store.append(basis_p_at_all_nodes) # choose tests functions same as basis functions
 			self.derivative_test_functions_store.append(self.differentiation(self.test_functions_store[p]))
-			self.basis_functions_store_left[p] = basis_p_at_all_nodes[0]
-			self.basis_functions_store_right[p] = basis_p_at_all_nodes[-1]
+			basis_p_at_element_boundaries = basis(p, np.array([-1.0, 1.0]), self.poly_degree)
+			self.basis_functions_store_left[p] = basis_p_at_element_boundaries[0] #basis_p_at_all_nodes[0]
+			self.basis_functions_store_right[p] = basis_p_at_element_boundaries[-1] #basis_p_at_all_nodes[-1]
 
 		self.element_vertices = self.get_element_vertices_uniformly_spaced()
 		self.elementwise_left_vertices = self.element_vertices[:-1]
@@ -129,6 +140,17 @@ class DGSolver:
 			u_delta += element_frequency_solution[p]*self.basis_functions_store[p]
 		return u_delta #returning numerical solution in physical space
 
+	#Converting between physical and frequency space
+	def element_frequency_to_physical_at_boundaries(self, element_index, element_frequency_solution):
+		#TODO: double check that this should be number_of_quad_points
+		# remove element index arg
+		u_delta_at_boundaries = np.zeros(2, dtype=np.float64)
+		for p in range(0,self.poly_degree+1):
+			#TODO: determine if element_index is needed for elementwise_frequency_weights
+			#and does basis function need to be in physical space
+			u_delta_at_boundaries += element_frequency_solution[p]*np.array([self.basis_functions_store_left[p],self.basis_functions_store_right[p]])
+		return u_delta_at_boundaries #returning numerical solution in physical space at element boundaries
+
 	def element_physical_to_frequency(self, element_index, element_physical_solution):
 		inner_prod_phi_udelta = np.zeros(self.poly_degree+1, dtype=np.float64)
 		for p in range(0,self.poly_degree+1):
@@ -159,9 +181,12 @@ class DGSolver:
 
 	def exact_solution_function(self, x, time):
 		return self.initial_condition_function(x-self.a*time)
-
 #=========================================================================================#
-	def compute_right_hand_side(self,current_time,constant_timestep,sol_frequency):
+	def interpolate_solution(self):
+
+		return 0
+#=========================================================================================#
+	def compute_right_hand_side(self,current_time,sol_frequency):
 		# need to allocate / declare things here
 		sol_physical = []
 		flux_physical = []
@@ -177,16 +202,19 @@ class DGSolver:
 			flux_frequency.append(self.element_physical_to_frequency(element_index,flux_physical[element_index]))
 		for element_index in range(0,self.number_of_elements):
 			# inner element values:
-			solution_L_plus = sol_physical[element_index][0]
-			solution_R_minus = sol_physical[element_index][-1] #current_element_solution_physical[-1]
+			solution_L_plus,solution_R_minus = self.element_frequency_to_physical_at_boundaries(element_index,sol_frequency[element_index])
+			#solution_L_plus = sol_physical[element_index][0]
+			#solution_R_minus = sol_physical[element_index][-1] #current_element_solution_physical[-1]
 			# neighbour element values:
 			if(element_index!=0):
-				solution_L_minus = sol_physical[element_index-1][-1]
+				#solution_L_minus = sol_physical[element_index-1][-1]
+				solution_L_minus = self.element_frequency_to_physical_at_boundaries(element_index-1,sol_frequency[element_index-1])[-1]
 			else:
 				# solution_L_minus = self.left_dirichlet_boundary_condition_physical
 				solution_L_minus = self.exact_solution_function(self.domain_left,current_time)
 			if(element_index!=(self.number_of_elements-1)):
-				solution_R_plus = sol_physical[element_index+1][0]
+				# solution_R_plus = sol_physical[element_index+1][0]
+				solution_R_plus = self.element_frequency_to_physical_at_boundaries(element_index+1,sol_frequency[element_index+1])[0]
 			else:
 				# solution_R_plus = self.right_dirichlet_boundary_condition_physical
 				solution_R_plus = self.exact_solution_function(self.domain_right,current_time)
@@ -207,14 +235,41 @@ class DGSolver:
 			rhs_frequency_new.append(np.linalg.solve(self.build_element_mass_matrix(element_index),rhs_vec[element_index]))
 		return rhs_frequency_new
 #=========================================================================================#
-	def step_in_time(self, delta_t, current_time, constant_time_step):
+	def step_in_time(self, delta_t, current_time):
 		sol_freq_current = self.elementwise_solution_frequency
-		rhs_freq = self.compute_right_hand_side(current_time,constant_time_step,sol_freq_current)
-		sol_freq_new = []
-		# explicit euler
-		for element_index in range(0,self.number_of_elements):
-			sol_freq_new.append(sol_freq_current[element_index] + delta_t*rhs_freq[element_index])
 		
+		if(self.rk4):
+			# rk4:
+			k1 = self.compute_right_hand_side(current_time, sol_freq_current)
+			# -- step 2
+			dummy_arg =[]
+			for element_index in range(0,self.number_of_elements):
+				dummy_arg.append(sol_freq_current[element_index]+0.5*delta_t*k1[element_index])
+			k2 = self.compute_right_hand_side(current_time+0.5*delta_t, dummy_arg)
+			# -- step 3
+			dummy_arg =[]
+			for element_index in range(0,self.number_of_elements):
+				dummy_arg.append(sol_freq_current[element_index]+0.5*delta_t*k2[element_index])
+			k3 = self.compute_right_hand_side(current_time+0.5*delta_t, dummy_arg)
+			# -- step 4
+			dummy_arg =[]
+			for element_index in range(0,self.number_of_elements):
+				dummy_arg.append(sol_freq_current[element_index]+delta_t*k3[element_index])
+			k4 = self.compute_right_hand_side(current_time, dummy_arg)
+		else:
+			# e.e.
+			rhs_freq = self.compute_right_hand_side(current_time,sol_freq_current)
+		
+		sol_freq_new = []
+
+		for element_index in range(0,self.number_of_elements):
+			if(self.rk4):
+				# rk4:
+				sol_freq_new.append(sol_freq_current[element_index] + (1.0/6.0)*delta_t*(k1[element_index]+2.0*k2[element_index]+2.0*k3[element_index]+k4[element_index]))
+			else:
+				# e.e.
+				sol_freq_new.append(sol_freq_current[element_index] + delta_t*rhs_freq[element_index])
+
 		# update solution in attributes
 		for element_index in range(0,self.number_of_elements):
 			self.elementwise_solution_frequency[element_index] = sol_freq_new[element_index]
@@ -271,7 +326,7 @@ class DGSolver:
 		self.output_solution_files(output_count)
 
 		while (current_time < final_time):
-			self.step_in_time(constant_time_step,current_time, constant_time_step)
+			self.step_in_time(constant_time_step,current_time)
 			current_time += constant_time_step
 			# convert to physical
 			# write the solution physical .txt files -- make solution physical a np array matrix

@@ -15,22 +15,23 @@ num_elements_values = np.array(num_elements_values)
 # print(len(num_elements_values))
 # print(num_elements_values)
 
-error_values = np.zeros(number_of_runs)
+error_values = -1.0*np.ones(number_of_runs)
 
 for iElements in range(len(num_elements_values)):
 	print("Running dg_solver with " + str(num_elements_values[iElements]) + " elements;")
 	dg_solver = DGSolver.DGSolver(domain_left=0.0,
 								  domain_right=(2.0*np.pi),
-								  poly_degree=2,
+								  poly_degree=1,
 								  number_of_elements=num_elements_values[iElements],
-								  cfl=0.0015,
-								  a=(2.0*np.pi))
+								  cfl=0.0075,
+								  a=(2.0*np.pi),
+								  rk4=True)
 	error_values[iElements] = dg_solver.advance_solution_time()
 	print("Error: " + str(error_values[iElements]))
+	np.savetxt("error_values_P1_cfl0075_rk4.csv", error_values, delimiter=',') #, fmt='%d')
 
-print(error_values)
-np.savetxt("error_values_P2_cfl0015.csv", error_values, delimiter=',') #, fmt='%d')
-
-plt.figure()
-plt.plot(num_elements_values, error_values)
-plt.show()
+# print(error_values)
+# np.savetxt("error_values_P2_cfl0015.csv", error_values, delimiter=',') #, fmt='%d')
+# plt.figure()
+# plt.plot(num_elements_values, error_values)
+# plt.show()
