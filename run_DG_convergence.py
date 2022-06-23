@@ -5,11 +5,11 @@ import sys
 #from quickplotlib import plotfxn, plot_matrix_sparsity_pattern
 import matplotlib . pyplot as plt
 
-number_of_runs = 7
-num_elements_values = [5]
+number_of_runs = 4
+num_elements_values = [8]
 
 for i in range(1,number_of_runs):
-	num_elements_values.append(num_elements_values[i-1]+10)
+	num_elements_values.append(num_elements_values[i-1]*2) #+10)
 num_elements_values = np.array(num_elements_values)
 
 # print(len(num_elements_values))

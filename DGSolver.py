@@ -62,9 +62,10 @@ class DGSolver:
 			self.basis_functions_store.append(basis_p_at_all_nodes)
 			self.test_functions_store.append(basis_p_at_all_nodes) # choose tests functions same as basis functions
 			self.derivative_test_functions_store.append(self.differentiation(self.test_functions_store[p]))
-			basis_p_at_element_boundaries = basis(p, np.array([-1.0, 1.0]), self.poly_degree)
-			self.basis_functions_store_left[p] = basis_p_at_element_boundaries[0] #basis_p_at_all_nodes[0]
-			self.basis_functions_store_right[p] = basis_p_at_element_boundaries[-1] #basis_p_at_all_nodes[-1]
+			#GL:
+			#basis_p_at_element_boundaries = basis(p, np.array([-1.0, 1.0]), self.poly_degree)
+			self.basis_functions_store_left[p] = basis_p_at_all_nodes[0] #basis_p_at_element_boundaries[0]
+			self.basis_functions_store_right[p] = basis_p_at_all_nodes[-1] #basis_p_at_element_boundaries[-1]
 
 		self.element_vertices = self.get_element_vertices_uniformly_spaced()
 		self.elementwise_left_vertices = self.element_vertices[:-1]
@@ -202,19 +203,22 @@ class DGSolver:
 			flux_frequency.append(self.element_physical_to_frequency(element_index,flux_physical[element_index]))
 		for element_index in range(0,self.number_of_elements):
 			# inner element values:
-			solution_L_plus,solution_R_minus = self.element_frequency_to_physical_at_boundaries(element_index,sol_frequency[element_index])
-			#solution_L_plus = sol_physical[element_index][0]
-			#solution_R_minus = sol_physical[element_index][-1] #current_element_solution_physical[-1]
+			#GL:
+			#solution_L_plus,solution_R_minus = self.element_frequency_to_physical_at_boundaries(element_index,sol_frequency[element_index])
+			solution_L_plus = sol_physical[element_index][0]
+			solution_R_minus = sol_physical[element_index][-1] #current_element_solution_physical[-1]
 			# neighbour element values:
 			if(element_index!=0):
-				#solution_L_minus = sol_physical[element_index-1][-1]
-				solution_L_minus = self.element_frequency_to_physical_at_boundaries(element_index-1,sol_frequency[element_index-1])[-1]
+				#GL:
+				solution_L_minus = sol_physical[element_index-1][-1]
+				#solution_L_minus = self.element_frequency_to_physical_at_boundaries(element_index-1,sol_frequency[element_index-1])[-1]
 			else:
 				# solution_L_minus = self.left_dirichlet_boundary_condition_physical
 				solution_L_minus = self.exact_solution_function(self.domain_left,current_time)
 			if(element_index!=(self.number_of_elements-1)):
-				# solution_R_plus = sol_physical[element_index+1][0]
-				solution_R_plus = self.element_frequency_to_physical_at_boundaries(element_index+1,sol_frequency[element_index+1])[0]
+				#GL:
+				solution_R_plus = sol_physical[element_index+1][0]
+				#solution_R_plus = self.element_frequency_to_physical_at_boundaries(element_index+1,sol_frequency[element_index+1])[0]
 			else:
 				# solution_R_plus = self.right_dirichlet_boundary_condition_physical
 				solution_R_plus = self.exact_solution_function(self.domain_right,current_time)
