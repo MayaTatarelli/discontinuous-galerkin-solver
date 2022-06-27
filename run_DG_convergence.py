@@ -19,11 +19,11 @@ error_values = -1.0*np.ones(number_of_runs)
 
 #Variables to be set for DGSolver
 #cur_poly_degree = 2
-cur_cfl = 0.001
-cur_cfl_name = "001"
+cur_cfl = 0.0005
+cur_cfl_name = "0005"
 cur_rk4 = True
 
-for cur_poly_degree in range(2,5):
+for cur_poly_degree in range(3,5):
 	#Set filename
 	if(cur_rk4):
 		file_name = "error_values_P{}_cfl{}_rk4.csv".format(cur_poly_degree,cur_cfl_name)
