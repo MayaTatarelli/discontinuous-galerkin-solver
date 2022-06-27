@@ -87,7 +87,7 @@ def get_ref_curve(error_vals,x_data,n):
 # num_elements_values = np.array(num_elements_values)
 
 #Up by *2:
-number_of_runs = 3
+number_of_runs = 4
 num_elements_values = [8]
 
 for i in range(1,number_of_runs):
@@ -97,11 +97,11 @@ num_elements_values = np.array(num_elements_values)
 
 x_values = (2.0*np.pi)/num_elements_values
 print(x_values)
-error_values = np.loadtxt("error_values_P3_cfl01_rk4.csv", delimiter=",")
+error_values = np.loadtxt("error_values_P2_cfl001_rk4.csv", delimiter=",")
 #When using error_values below, number_of_runs must be 8 (up to 75 elements only)
 #error_values = np.array ([0.07675223434418506, 0.003379224280853759, 0.001316652195210326, 0.0008751557041560119, 0.0008060444479951529, 0.0006575629672622212, 0.000555763935542056, 0.00048141199163347006])
 print(error_values)
-poly_degree = 3
+poly_degree = 2
 
 plt.figure()
 i = poly_degree+1
@@ -111,7 +111,7 @@ plt.loglog(1.0/x_values, 1.0/dx_n,linestyle="--",label=label_name)
 
 plt.loglog(1.0/x_values, error_values)#,label=name_scheme, linestyle=linestyles[i_scheme])
 
-plt.title("Nodal, P=2, CFL=0.0015, $N_{el}\\epsilon$[5,95]")
+plt.title("Nodal, P=2, CFL=0.001, $N_{el}\\epsilon$[8,64]")
 plt.ylabel("L2-error")
 plt.xlabel("$h^{-1}$")
 plt.legend()
