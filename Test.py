@@ -76,10 +76,34 @@ print(error)
 #=========================================================================#
 #Testing gLNodesAndWeights from polylib
 
-n_3_x, n_3_w = gLNodesAndWeights(3)
-n_4_x, n_4_w = gLNodesAndWeights(4)
-n_5_x, n_5_w = gLNodesAndWeights(5)
-n_6_x, n_6_w = gLNodesAndWeights(2)
+# n_3_x, n_3_w = gLNodesAndWeights(3)
+# n_4_x, n_4_w = gLNodesAndWeights(4)
+# n_5_x, n_5_w = gLNodesAndWeights(5)
+# n_6_x, n_6_w = gLNodesAndWeights(2)
 
-print(n_5_x)
-print(n_5_w)
+# print(n_5_x)
+# print(n_5_w)
+#=========================================================================#
+#Get Mass and Stiffness Matrices
+
+#Variables
+cur_cfl = 0.001
+cur_rk4 = True
+
+for poly_degree in range(2, 5):
+
+	dg_solver = DGSolver.DGSolver(domain_left=-1.0,
+										domain_right=1.0,
+										poly_degree=poly_degree,
+										number_of_elements=1,
+										cfl=cur_cfl,
+										a=(2.0*np.pi),
+										rk4=cur_rk4)
+
+	stiff_matrix = dg_solver.build_element_stiffness_matrix(0)
+	file_name = "stiffness_matrix_P%i.txt" % (poly_degree)
+	np.savetxt(file_name, stiff_matrix)
+
+	#mass_matrix = dg_solver.build_element_mass_matrix(0)
+	#file_name = "mass_matrix_P%i.txt" % (poly_degree)
+	#np.savetxt(file_name, mass_matrix)
